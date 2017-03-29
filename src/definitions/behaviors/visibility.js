@@ -424,10 +424,20 @@ $.fn.visibility = function(parameters) {
             return false;
           },
           verticallyScrollableContext: function() {
-            return $context.get(0) !== window  && $context.css('overflow-y') == 'auto';
+            var
+              overflowY = ($context.get(0) !== window)
+                ? $context.css('overflow-y')
+                : false
+            ;
+            return (overflowY == 'auto' || overflowY == 'scroll');
           },
           horizontallyScrollableContext: function() {
-            return $context.get(0) !== window  && $context.css('overflow-x') == 'auto';
+            var
+              overflowX = ($context.get(0) !== window)
+                ? $context.css('overflow-x')
+                : false
+            ;
+            return (overflowX == 'auto' || overflowX == 'scroll');
           }
         },
 
@@ -887,10 +897,10 @@ $.fn.visibility = function(parameters) {
             element.height        = $module.outerHeight();
             // compensate for scroll in context
             if(module.is.verticallyScrollableContext()) {
-              element.offset.top += $context.scrollTop();
+              element.offset.top += $context.scrollTop() - $context.offset().top;
             }
             if(module.is.horizontallyScrollableContext()) {
-              element.offset.left += $context.scrollLeft();
+              element.offset.left += $context.scrollLeft - $context.offset().left;
             }
             // store
             module.cache.element = element;
@@ -915,10 +925,10 @@ $.fn.visibility = function(parameters) {
             }
 
             // visibility
-            element.topVisible       = (screen.bottom >= element.top);
             element.topPassed        = (screen.top >= element.top);
-            element.bottomVisible    = (screen.bottom >= element.bottom);
             element.bottomPassed     = (screen.top >= element.bottom);
+            element.topVisible       = (screen.bottom >= element.top) && !element.bottomPassed;
+            element.bottomVisible    = (screen.bottom >= element.bottom) && !element.topPassed;
             element.pixelsPassed     = 0;
             element.percentagePassed = 0;
 
